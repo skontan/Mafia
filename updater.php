@@ -78,6 +78,9 @@ function createGame() {
 function getUsers() {
     global $conn;
 
+    //Clear users array
+    callJS("users = [];");
+
     //Get all users in the game
     $sql = "SELECT userName FROM users WHERE gameId=?";
     $stmt = mysqli_prepare($conn, $sql);
@@ -188,7 +191,6 @@ function assignRoles() {
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
     }
-
     //done
 
     //When finished, change status
@@ -249,7 +251,7 @@ function getAllRoles() {
         }
 
         else if ($roles == "sheriff") {
-            $doctor = "true";
+            $sheriff = "true";
         }
 
         $numUsers++;
@@ -375,7 +377,7 @@ function nightReport() {
     global $conn;
 
     //Getting all user that where either marked to kill or heal
-    $sql = "SELECT userName, markKill, markHeal FROM users WHERE gameId=? AND alive=true AND markKill=true";
+    $sql = "SELECT userName, markKill, markHeal FROM users WHERE gameId=? AND markKill=true";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "i", $_SESSION["gameId"]);
     mysqli_stmt_execute($stmt);
@@ -495,6 +497,17 @@ function gameOver() {
     mysqli_stmt_close($stmt);
 }
 
+function startDay() {
+    global $conn;
+
+    //Set status to new day (7)
+    $sql = "UPDATE games SET status=7 WHERE gameId=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION["gameId"]);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+}
+
 
 //Main
 if($_POST["action"] == "createGame") {
@@ -545,6 +558,10 @@ else if($_POST["action"] == "wakeSheriff") {
     wakeSheriff();
 }
 
+else if($_POST["action"] == "checkUser") {
+    checkUser();
+}
+
 else if($_POST["action"] == "wakeMafia") {
     wakeMafia();
 }
@@ -554,7 +571,7 @@ else if($_POST["action"] == "getAllRoles") {
 }
 
 else if($_POST["action"] == "nightReport") {
-    nightReport()();
+    nightReport();
 }
 
 else if($_POST["action"] == "kill") {
@@ -571,6 +588,10 @@ else if($_POST["action"] == "aliveCheck") {
 
 else if($_POST["action"] == "gameOver") {
     gameOver();
+}
+
+else if($_POST["action"] == "startDay") {
+    startDay();
 }
 
 //Close mysql

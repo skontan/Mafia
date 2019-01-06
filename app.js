@@ -80,20 +80,25 @@ function joinGame() {
 }
 
 function waitForOrders() {
+    //If there are any double timeouts going on then we clear them here
+    clearTimeout(myTimeout);
+
     console.log("Checking game status...");
 
     //Checking game status
-    $("#updater").load("updater.php", { action : "checkGameStatus"}, function() {
+    $("#updater").load("updater.php", { action : "checkGameStatus" }, function() {
         
         console.log("Game status: " + status);
 
         //When check is completed
+
         //If game is still waiting to start
         if(status == 0) {
-            //Clearing users array
-            users = [];
 
-            console.log("Cleared users array");
+            //Clearing users from .php instead
+            //users = [];
+
+            //console.log("Cleared users array");
             console.log("Getting users from db...")
 
             //Get users
@@ -130,14 +135,16 @@ function waitForOrders() {
 
             //If we came from day
             if(lastStatus == 7) {
+
                 //Updating with roles since people might have died
-                getAllRoles();
-            }
+                getAllRoles(function() {
+                    //If no one won after that check then startNight()
+                    startNight();
+                });
+            } 
 
             //Save lastStatus
             lastStatus = status;
-
-            startNight();
         }
 
         //If it's time for mafia to wake up and we didn't know and we aren't admin,
@@ -146,7 +153,7 @@ function waitForOrders() {
             //If admin then you wait for mafia to be done
             //If you are admin and mafia then you probably won't get here
             if(admin) {
-                setTimeout(waitForOrders, 2000);
+                myTimeout = setTimeout(waitForOrders, 2000);
             } 
 
             //If not admin
@@ -157,7 +164,7 @@ function waitForOrders() {
                     wakeMafia();
                 } else {
                     //If we knew then just wait for mafia to be done
-                    setTimeout(waitForOrders, 2000);
+                    myTimeout = setTimeout(waitForOrders, 2000);
                 }
             }
 
@@ -185,38 +192,24 @@ function waitForOrders() {
         }
 
         //If it's day and we are waiting for vote to happen
-        else if(status == 7 && lastStatus != 7 && alive && !admin) {
+        else if(status == 7 && lastStatus != 7) {
             //Save lastStatus
             lastStatus = status;
 
-            //See if we died
-            aliveCheck();
+            //See what happened during the night since it's a new day
+            nightReport();
         }
 
         else if(status == 8) {
-            gameOver();
+
+            //Since game is over we will get them to do a check and find out who won
+            getAllRoles();
         }
 
-        else if(!admin) {
-            setTimeout(waitForOrders, 2000);
+        else {
+            myTimeout = setTimeout(waitForOrders, 2000);
         }
     });
-
-    //if 0 -> ask again since we want game to start
-
-    //if 1 -> startGame()
-
-    //if 2 -> startNight()
-
-    //if 3 -> wakeMafia()
-
-    //if 4 -> wakeDoctor()
-
-    //if 5 -> wakeSheriff()
-
-    //if 6 -> nightReport()
-
-    //if 7 -> gameOver()
 }
 
 function adminPanel() {
@@ -240,10 +233,11 @@ function startGame() {
     clearTimeout(myTimeout);
 
     if(admin) {
-        $("#updater").load("updater.php", { action : "startGame" });
-        assignRoles();
+        $("#updater").load("updater.php", { action : "startGame" }, function() {
+            assignRoles();
+        });
     } else {
-        setTimeout(waitForOrders, 2000);
+        myTimeout = setTimeout(waitForOrders, 2000);
     }
 }
 
@@ -303,18 +297,19 @@ function assignRoles() {
 
     var jsonMafia = JSON.stringify(mafia);
 
-
     //updates database
     $("#updater").load("updater.php", { action : "assignRoles", sheriff : sheriffName, doctor : doctorName,
         mafia : jsonMafia }, function() {
+        
         console.log("Roles assigned!");
+
+        getRole();
     });
-    
-    //getRole()
-    getRole();
 }
 
 function getRole() {
+
+    clearTimeout(myTimeout);
 
     console.log("Getting your role...");
 
@@ -329,25 +324,24 @@ function getRole() {
 
         //Start night and since we know it's night we can change lastStatus
         lastStatus = 3;
-        setTimeout(startNight, 7000);
+
+        //Temporary
+        while(!confirm("Do you want to start night?")) {}
+        startNight();
     });
-}
-
-function showRole() {
-    //You are a XXX!
-
-    //waitForOrders()
 }
 
 function startNight() {
     //night mode on
 
+    clearTimeout(myTimeout);
+
     console.log("Night is starting...");
 
     if(admin) {
         $("#updater").load("updater.php", { action : "startNight" }, function() {
-            //Night is on and mafia can wake up
-            wakeMafia();
+            //Night is on and mafia can wake up in 5 seconds
+            myTimeout = setTimeout(wakeMafia, 5000);
         });
     } else {
         waitForOrders();
@@ -355,6 +349,8 @@ function startNight() {
 }
 
 function wakeMafia() {
+
+    clearTimeout(myTimeout);
 
     console.log("Waking mafia...");
     
@@ -388,17 +384,19 @@ function wakeMafia() {
                 console.log(mafiaLeader + " is the mafia leader.");
                 console.log("Point at the person you want to kill and " + mafiaLeader + " will pick on their phone.");
 
-                setTimeout(waitForOrders, 2000);
+                myTimeout = setTimeout(waitForOrders, 2000);
             }
         });
 
     } else {
-        setTimeout(waitForOrders, 2000);
+        myTimeout = setTimeout(waitForOrders, 2000);
     }
 
 }
 
 function wakeDoctor() {
+
+    clearTimeout(myTimeout);
 
     console.log("Waking doctor...");
 
@@ -423,7 +421,7 @@ function wakeDoctor() {
 
         //If we aren't the doctor
         else {
-            setTimeout(waitForOrders, 2000);
+            myTimeout = setTimeout(waitForOrders, 2000);
         }
     } 
 
@@ -438,18 +436,20 @@ function wakeDoctor() {
                 wakeSheriff();
             });
         } else {
-            setTimeout(waitForOrders, 2000);
+            myTimeout = setTimeout(waitForOrders, 2000);
         }
     }
 }
 
 function wakeSheriff() {
 
+    clearTimeout(myTimeout);
+
     console.log("Waking sheriff...");
 
     //If there is a sheriff in the game
     if(sheriff) {
-        //if we are the doctor and alive
+        //if we are the sheriff and alive
         if(role == "sheriff" && alive) {
 
             console.log("You are the sheriff!");
@@ -476,7 +476,7 @@ function wakeSheriff() {
             //If we aren't the sheriff
         else {
             console.log("You are not the sheriff");
-            setTimeout(waitForOrders, 2000);
+            myTimeout = setTimeout(waitForOrders, 2000);
         }
     }
 
@@ -485,13 +485,13 @@ function wakeSheriff() {
 
         console.log("There is no living sheriff in the game");
 
-        //if admin then change game status to startDay (7) since the doctor can't
+        //if admin then change game status to startDay (7) since the sheriff can't
         if(admin) {
             $("#updater").load("updater.php", { action : "startDay" }, function () {
                 nightReport();
             });
         } else {
-            setTimeout(waitForOrders, 2000);
+            myTimeout = setTimeout(waitForOrders, 2000);
         }
     }
 }
@@ -500,6 +500,8 @@ function nightReport() {
     //This happened during the night
 
     //7 seconds later -> startDay()
+
+    clearTimeout(myTimeout);
 
     console.log("Getting night report...")
 
@@ -513,11 +515,14 @@ function nightReport() {
         if(admin && nightAction == "killed") {
             $("#updater").load("updater.php", { action : "kill", who : effectedUser }, function() {
                 console.log(effectedUser + " is now dead in the db");
+
+                //Check if a team won
+                getAllRoles();
             });
         }
 
         //Start day after 7 seconds
-        setTimeout(startDay, 7000);
+        myTimeout = setTimeout(startDay, 7000);
     });
 }
 
@@ -539,11 +544,6 @@ function startDay() {
 
     console.log("It's a new day!");
 
-    //If admin then reset marks in db
-    if(admin) {
-        resetMarks();
-    }
-
     //If we died during the night
     if(nightAction == "killed" && userName == effectedUser) {
         dead();
@@ -559,12 +559,12 @@ function startDay() {
 
         //Else wait for orders
         else {
-            setTimeout(waitForOrders, 5000);
+            myTimeout = setTimeout(waitForOrders, 5000);
         }
     }
 }
 
-function resetMarks() {
+function resetMarks(ready) {
 
     console.log("Reseting marks in db...");
 
@@ -572,6 +572,11 @@ function resetMarks() {
     $("#updater").load("updater.php", { action : "resetMarks" }, function () {
         
         console.log("Marks reset!");
+
+        //Callback funciton
+        if(ready) {
+            ready();
+        }
     });
 }
 
@@ -589,16 +594,27 @@ function voteScreen() {
             console.log(vote + " is now dead in the db");
 
             //Check if a team won
-            whoWon();
+            getAllRoles(function () {
+                //if no one won then reset marks and start night
+                resetMarks(startNight);
+            });
 
         });
     }
 
-    //When voting is done, night begins
-    startNight();
+    //Else start night since day is over
+    else {
+        //Check if a team won
+        getAllRoles(function () {
+            //if no one won then reset marks and start night
+            resetMarks(startNight);
+        });
+    }
 }
 
-function getAllRoles() {
+function getAllRoles(ready) {
+
+    clearTimeout(myTimeout);
 
     console.log("Getting all roles...");
 
@@ -610,21 +626,25 @@ function getAllRoles() {
         console.log("Doctor: " + doctor);
         console.log("Sheriff: " + sheriff);
 
-        //if admin then see if anyone won
-        if(admin) {
-            //if mafia is half of the users
-            if(numMafia == numUsers/2) {
-                teamWon = "mafia";
-                gameOver();
-            } 
+        //See if anyone won
+        //if mafia is half of the users
+        if(numMafia == numUsers/2) {
+            teamWon = "mafia";
+            gameOver();
+        } 
 
-            //If all mafia are dead
-            else if(numMafia == 0) {
-                teamWon = "city";
-                gameOver();
-            }
+        //If all mafia are dead
+        else if(numMafia == 0) {
+            teamWon = "city";
+            gameOver();
         }
 
+        //If no one won then callback function
+        else {
+            if(ready) {
+                ready();
+            }
+        }
     });
 }
 
@@ -637,7 +657,7 @@ function aliveCheck() {
         console.log("Alive: " + alive);
 
         if(alive) {
-            setTimeout(waitForOrders, 2000);
+            myTimeout = setTimeout(waitForOrders, 2000);
         } else {
             dead();
         }
@@ -661,6 +681,8 @@ function dead() {
 }
 
 function gameOver() {
+    
+    clearTimeout(myTimeout);
     
     console.log("GAME OVER");
     console.log(teamWon + " won!!");
