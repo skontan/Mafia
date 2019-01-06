@@ -19,7 +19,7 @@ require_once 'includes/configMySQL.php';
 
 <body>
 	<div class="main">
-		<h1>Template</h1>
+		<h1>Mafia</h1>
 	</div>
 
     <div id="updater">
