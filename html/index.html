@@ -1,12 +1,539 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+	<meta name="viewport" charset="UTF-8" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	<link rel="stylesheet" href="../css/main.css">
+	<title>Mafia</title>
+    <!-- <link rel="stylesheet" style type="text/css" href="styles.css"> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
+
 <body>
-    
+
+
+	<!-- First Page (StartGame)   ------>
+	<div id="firstPage" class="fullscreen bg-light clearfix">
+ 
+
+		<div class="row fullscreen">
+			<div class="col d-flex justify-content-center align-items-center">
+				<div>
+					<input type="text" class="form-control mb-5" id="exampleFormControlInput1" placeholder="Enter your name."></input>
+					<button id="buttonCreateGame" type="button" class="btn btn-secondary btn-lg py-5 mr-1 px-5 rounded-right shadow-lg"> Create Game</button>
+					<button id="buttonJoinGame" type="button" class="btn btn-secondary btn-lg py-5 px-5 rounded-left shadow-lg"> Join game</button>
+				</div>
+
+			 </div>
+		</div>
+	</div>
+	
+
+
+	<!-- Admin Panel in Game Lobby -------->
+	<div id="adminPanel" class="fullscreen bg-light clearfix ">
+ 
+
+		<div class="row fullscreen">
+			<div class="col d-flex justify-content-center align-items-center">
+				<div>
+					<div class="container py-5 text-center">
+						<h1 class="mb-4" > Players</h1>
+						<ul id="playerList1" class="list-group shadow-sm">
+							<!-- list items created with JS-->
+						 </ul>
+						</div>
+				
+							<div class="container text-center">
+				
+								<div>
+									<h1 class="pb-4">Choose roles</h1>
+								</div>
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="inputGroupSelect01">Maffia</label>
+								</div>
+								<select class="custom-select" id="inputGroupSelect01">
+									<option selected>Choose...</option>
+									<option value="1">One</option>
+									<option value="2">Two</option>
+									<option value="3">Three</option>
+									<option value="4">Four</option>
+									<option value="5">Five</option>
+								</select>
+							  </div>
+							</div>
+				
+							<div class="container">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="inputGroupSelect02">Sheriff</label>
+								</div>
+								<select class="custom-select" id="inputGroupSelect02">
+									<option selected>Choose...</option>
+									<option value="0">None</option>
+									<option value="1">One</option>
+								</select>
+							  </div>
+							</div>
+				
+							<div class="container">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="inputGroupSelect03">Doctor</label>
+								</div>
+								<select class="custom-select" id="inputGroupSelect03">
+									<option selected>Choose...</option>
+									<option value="0">None</option>
+									<option value="1">One</option>
+								</select>
+							  </div>
+							</div>
+				
+							<div class="container">
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="inputGroupSelect04">Farmers</label>
+								</div>
+								<select class="custom-select" id="inputGroupSelect04">
+									<option selected>Choose...</option>
+									<option value="1">One</option>
+									<option value="2">Two</option>
+									<option value="3">Three</option>
+									<option value="4">Four</option>
+									<option value="5">Five</option>
+									<option value="6">Six</option>
+									<option value="7">Seven</option>
+									<option value="8">Eight</option>
+									<option value="9">Nine</option>
+									<option value="10">Ten</option>
+									<option value="11">Eleven</option>
+									<option value="12">Twelve</option>
+									<option value="13">Thirteen</option>
+									<option value="14">Fourteen</option>
+									<option value="15">Fithteen</option>
+									<option value="16">Sixteen</option>
+									<option value="17">Seventeen</option>
+									<option value="18">Eighteen</option>
+									<option value="19">Nineteen</option>
+									<option value="20">Twenty</option>
+								</select>
+							  </div>
+							</div>
+							<div class="text-center py-4">
+								<button id="buttonStartGame" type="button" class="btn btn-secondary shadow-lg">Start Game</button>
+							</div>
+						
+				</div>
+
+			 </div>
+		</div>
+	</div>
+
+
+	<!-- Normal player Game Lobby ----->
+
+	<div id="gameLobby" class="fullscreen bg-light clearfix ">
+ 
+
+		<div class="row fullscreen">
+			<div class="col d-flex justify-content-center align-items-center">
+				<div>
+					<div class="container py-5 text-center">
+						<h1 class="mb-4" > Players</h1>
+						<ul id="playerList2" class="list-group shadow-sm">
+							<!-- list items created with JS-->
+						 </ul>
+					</div>
+				</div>
+			 </div>
+		</div>
+	</div>
+
+
+
+
+<!-- Show roles screen -------->
+
+<div id="showRoles" class="fullscreen bg-light clearfix ">
+
+	<div class="container row fullscreen d-flex justify-content-center align-items-center pb-5" >
+		<div>
+			<h5 class="text-center">You are a </h5>
+			<h1 class="text-danger display-1 ml-2">Mafia!</h1>
+			<div>
+				<button id="buttonOkRoles" type="button" class="btn btn-primary btn-lg d-block my-5 mx-auto">Ok!</button>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- SleepCity ------->
+
+<div id="sleepCity" class="fullscreen bg-dark text-light clearfix ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div>
+					<h1>The City goes to sleep.</h1>
+				<audio controls autoplay>
+					<source src="../audio/SleepCity.mp3" type="audio/mp3">
+					<source src="../audio/SleepCity.ogg" type="audio/ogg">
+					Your browser does not support the audio element.
+				</audio> 
+
+				</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- NightMode  ------>
+
+<div id="nightMode" class="fullscreen bg-dark text-light clearfix ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="border py-3 px-4">
+			<h1 class="">Go to sleep...</h1>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- WakeMafia ------->
+
+<div id="wakeMafia" class="fullscreen bg-dark text-light clearfix ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="">
+			<h1>The Maffia wakes up.</h1>
+			 <audio controls autoplay>
+				<source src="../audio/WakeMafia.mp3" type="audio/mp3">
+				<source src="../audio/WakeMafia.ogg" type="audio/ogg">
+				Your browser does not support the audio element.
+			</audio> 
+
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- Normal Maffia screen ------->
+
+<div id="mafiaScreen" class="fullscreen bg-dark text-light clearfix ">
+
+		<div class="row fullscreen">
+			<div class="col d-flex justify-content-center align-items-center">
+				<div class="container py-5 text-center">
+				<h1>Maffia points at the one they want to kill...</h1>
+
+	
+				</div>
+			</div>
+		</div>
+	
+	</div>
+
+
+<!-- MafiaBoss Screen ------->
+
+<div id="mafiaBoss" class="fullscreen bg-dark text-white clearfix ">
+ 
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+				<div>
+					<h1 class="mb-4">Who does the Mafia want to kill?</h1>
+					<div id="buttonListMafia">
+						<!-- Buttons created with UpdatePlayerButtons.js-->
+					</div>
+
+				</div>
+
+		 </div>
+	</div>
+</div>
+
+
+
+<!-- MafiaKilled screen ------>
+
+<div id="mafiaKilled" class="fullscreen bg-dark text-white clearfix ">
+ 
+
+		<div class="row fullscreen">
+			<div class="col d-flex justify-content-center align-items-center">
+				<div class="container py-5 text-center">
+					<div>
+						<h1 class="mb-4">Maffia chose <h1 class="text-danger">"PERSON"</h1></h1>
+					</div>
+	
+			 </div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+<!-- SleepMafia ------->
+
+<div id="sleepMafia" class="fullscreen bg-dark text-light clearfix ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="">
+				<h1>The Maffia goes to sleep.</h1>
+				 <audio controls autoplay>
+					<source src="../audio/SleepMafia.mp3" type="audio/mp3">
+					<source src="../audio/SleepMafia.ogg" type="audio/ogg">
+					Your browser does not support the audio element.
+				</audio> 
+	
+				</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- WakeDoctor --------->
+
+<div id="wakeDoctor" class="fullscreen bg-dark text-light clearfix ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div>
+			<h1>The Doctor wakes up.</h1>
+			 <audio controls autoplay>
+				<source src="../audio/WakeDoctor.mp3" type="audio/mp3">
+				<source src="../audio/WakeDoctor.ogg" type="audio/ogg">
+				Your browser does not support the audio element.
+			</audio> 
+
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- DoctorNight ------>
+
+<div id="doctorNight" class="fullscreen bg-dark text-white clearfix ">
+ 
+
+		<div class="row fullscreen">
+			<div class="col d-flex justify-content-center align-items-center">
+				<div class="container py-5 text-center">
+						<div>
+							<h1 class="mb-4">Who does the Doctor want to save?</h1>
+							<div id="buttonListDoctor">
+								<!-- Buttons are created here from UpdatePlayerButtons.js-->
+							</div>
+						</div>
+	
+			 </div>
+		</div>
+	</div>
+
+
+
+
+<!-- You saved screen ------->
+
+	<div id="doctorSaved" class="fullscreen bg-dark text-white clearfix ">
+ 
+
+			<div class="row fullscreen">
+				<div class="col d-flex justify-content-center align-items-center">
+					<div class="container py-5 text-center">
+						<div>
+							<h1 class="mb-4">The Doctor choose <h1 class="text-success">"PERSON"</h1></h1>
+						</div>
+		
+				 </div>
+			</div>
+		</div>
+
+<!-- WakeSheriff --------->
+
+<div id="wakeSheriff" class="fullscreen bg-dark text-light ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+			<h1>The Sheriff wakes up.</h1>
+			 <audio controls autoplay>
+				<source src="../audio/WakeSheriff.mp3" type="audio/mp3">
+				<source src="../audio/WakeSheriff.ogg" type="audio/ogg">
+				Your browser does not support the audio element.
+			</audio> 
+
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- SheriffNight -------->
+
+<div id="sheriffNight" class="fullscreen bg-dark text-light ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+				<h1 class="mb-4">Who does the Sheriff want to check?</h1>
+				<div id="buttonListSheriff">
+					<!-- Buttons are created from UpdatePlayerButtons.js-->
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- Sheriff you checked and reveal screen-->
+
+<div id="sheriffChecked" class="fullscreen bg-dark text-light ">
+
+	<div class="row fullscreen bg-dark">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+			   <h1>"Name" is Maffia!</h1>
+			</div>
+
+		 </div>
+	</div>
+
+</div>
+
+<div class="fullscreen bg-dark text-light">
+
+		<div class="row fullscreen bg-dark">
+			<div class="col d-flex justify-content-center align-items-center">
+			   <div class="container py-5 text-center">
+	   		   		<h1>"Name" is NOT Maffia</h1>
+ 			   </div>
+			 </div>
+		</div>
+	
+</div>
+
+
+<!-- SleepSheriff --------->
+
+<div id="sleepSheriff" class="fullscreen bg-dark text-light ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+
+			 <audio controls autoplay>
+				<source src="../audio/SleepSheriff.mp3" type="audio/mp3">
+				<source src="../audio/SleepSheriff.ogg" type="audio/ogg">
+				Your browser does not support the audio element.
+			</audio> 
+				
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- WakeCity ------->
+
+<div id="wakeCity" class="fullscreen bg-dark text-light ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+			<h1>The City wakes up.</h1>
+			 <audio controls autoplay>
+				<source src="../audio/WakeCity.mp3" type="audio/mp3">
+				<source src="../audio/WakeCity.ogg" type="audio/ogg">
+				Your browser does not support the audio element.
+			</audio> 
+
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<!-- NightReport --------->
+
+<div id="nightReport" class="fullscreen bg-dark text-light ">
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+				<h1 class="mb-4">"Name" was <h1 class="text-danger d-inline">KILLED</h1> during the night.</h1>
+			</div>
+		</div>
+	</div>
+
+
+
+</div>
+
+<div class="fullscreen bg-dark text-light">
+	<div class="row fullscreen bg-dark">
+			<div class="col d-flex justify-content-center align-items-center">
+				<div class="container py-5 text-center">
+					<h1 class="mb-4">"Name" was <h1 class="text-success d-inline">SAVED</h1> during the night.</h1>
+				</div>
+			</div>
+		</div>
+</div>
+
+<!-- AdminDaymode -------->
+
+<div id="adminDaymode" class="fullscreen bg-dark text-light ">	
+
+	<div class="row fullscreen">
+		<div class="col d-flex justify-content-center align-items-center">
+			<div class="container py-5 text-center">
+				<h1 class="mb-4">Who do you want to vote out?</h1>
+				<div id="buttonListFarmers">
+					<!-- Buttons created by UpdatePlayerButtons.js -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+
+
+
+
+    <div id="updater">
+	</div>
+	
+
+	
+	<script src="../ShowOrHide.js"></script>
+	<script src="../UpdatePlayerButtons.js"></script>
+	<script src="../UpdatePlayerList.js"></script>
+	<script src="../RandomFuctions.js"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 </body>
 </html>
