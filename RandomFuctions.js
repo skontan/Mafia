@@ -14,8 +14,7 @@ function showElement(elementId) { // elementId needs to be written in "#id".
 var createGameButton = document.getElementById("buttonCreateGame");
 
 createGameButton.addEventListener("click", function() {
-    $("#firstPage").hide();
-    $("#adminPanel").show();
+    createGame();
 });
 
 // Join Game button on click, hides first page and shows Game Lobby
@@ -23,8 +22,7 @@ createGameButton.addEventListener("click", function() {
 var joinGameButton = document.getElementById("buttonJoinGame");
 
 joinGameButton.addEventListener("click", function() {
-    $("#firstPage").hide();
-    $("#gameLobby").show();
+    joinGame();
 });
 
 // Start Game button on click start the game
@@ -32,9 +30,7 @@ joinGameButton.addEventListener("click", function() {
 var startGameButton = document.getElementById("buttonStartGame");
 
 startGameButton.addEventListener("click", function() {
-    $("#gameLobby").hide();
-    $("#adminPanel").hide();
-    $("#showRoles").show();
+    adminPanel();
     
         // $("#showRoles").hide();
         // $("#sleepCity").show();
@@ -45,15 +41,7 @@ startGameButton.addEventListener("click", function() {
 var showRolesOkButton = document.getElementById("buttonOkRoles");
 
 showRolesOkButton.addEventListener("click", function() {
-    $("#showRoles").hide();
-    // anropa JS funktion för SleepCity.
-    $("#nightMode").show();
-    setTimeout(function() {
-     $("#nightMode").hide();  
-     // Wake Maffia with JS command
-     $("#mafiaScreen").show();   
-     $("#mafiaBoss").show();  
-    }, 5000)
+    startNight();
 });
 
 // MafiaBoss on click kill button go to next step

@@ -37,46 +37,78 @@ var mafia = []; //Array with the names of the mafias
 var doctorName; //The name of the doctor
 var sheriffName; //The name of the sheriff
 
+const input_name = document.getElementById("nameInput");
+const select_mafia = document.getElementById("selectMafia");
+const select_doctor = document.getElementById("selectDoctor");
+const select_sheriff = document.getElementById("selectSheriff");
+const role_h1 = document.getElementById("role_h1");
+const effectedPerson_h1 = document.getElementById("effectedPerson_h1");
+const nightAction_h1 = document.getElementById("nightAction_h1");
+const teamWon_p = document.getElementById("teamWon_p");
+const checkedPerson_h1 = document.getElementById("checkedPerson_h1");
+const team_h1 = document.getElementById("team_h1");
+
+audio_sleepCity = new Audio("audio/SleepCity.mp3");
+audio_sleepDoctor = new Audio("audio/sleepDoctor.mp3");
+audio_sleepMafia = new Audio("audio/sleepMafia.mp3");
+audio_sleepSheriff = new Audio("audio/sleepSheriff.mp3");
+audio_wakeCity = new Audio("audio/wakeCity.mp3");
+audio_wakeDoctor = new Audio("audio/wakeDoctor.mp3");
+audio_wakeMafia = new Audio("audio/wakeMafia.mp3");
+audio_wakeSheriff = new Audio("audio/wakeSheriff.mp3");
+
 var myTimeout; //A timeout var
 
 function createGame() {
     //Temporary way
-    userName = prompt("What's your name?");
+    userName = input_name.value;
 
-    console.log("Creating game...");
+    if(userName != "") {
 
-    //Create game and pass on userName
-    $("#updater").load("updater.php", { "action" : "createGame", who : userName}, function() {
-        
-        console.log("Game created!");
-        console.log("UserId: " + userId);
-        console.log("UserName: " + userName);
-        console.log("GameId: " + gameId);
-        console.log("Admin:" + admin);
+        //Hide/Show elemets
+        $("#firstPage").hide();
+        $("#adminPanel").show();
 
-        adminPanel();
-        waitForOrders();
-    });
+        console.log("Creating game...");
+    
+        //Create game and pass on userName
+        $("#updater").load("updater.php", { "action" : "createGame", who : userName}, function() {
+            
+            console.log("Game created!");
+            console.log("UserId: " + userId);
+            console.log("UserName: " + userName);
+            console.log("GameId: " + gameId);
+            console.log("Admin:" + admin);
+    
+            waitForOrders();
+        });
+    }
 }
 
 function joinGame() {
     console.log("Joining game...");
 
-    //Temprary fix
-    userName = prompt("What is your name?");
+    //Save userName
+    userName = input_name.value;
 
-    //Trying to join game
-    $("#updater").load("updater.php", { action : "joinGame", who : userName }, function() {
-        if(gameId) {
-            console.log("Joined game!");
-            console.log("GameId: " + gameId);
+    if(userName != "") {
+        //Hide and show elements
+        $("#firstPage").hide();
+        $("#gameLobby").show();
 
-            waitForOrders();
-        } else {
-            console.log("Didn't find game. Trying again soon.");
-        }
-        
-    });
+        //Trying to join game
+        $("#updater").load("updater.php", { action : "joinGame", who : userName }, function() {
+            if(gameId) {
+                console.log("Joined game!");
+                console.log("GameId: " + gameId);
+
+                waitForOrders();
+            } else {
+                console.log("Didn't find game. Trying again soon.");
+            }
+            
+        });
+    }
 }
 
 function waitForOrders() {
@@ -106,6 +138,7 @@ function waitForOrders() {
                 
                 console.log("Users found!");
                 console.log(users);
+                updatePlayerList();
 
                 myTimeout = setTimeout(waitForOrders, 2000);
             });
@@ -197,7 +230,7 @@ function waitForOrders() {
             lastStatus = status;
 
             //See what happened during the night since it's a new day
-            nightReport();
+            setTimeout(function() {nightReport()}, 5000);
         }
 
         else if(status == 8) {
@@ -219,14 +252,30 @@ function adminPanel() {
 
     //startGame()
 
-    numMafia = prompt("How many mafia?");
-    doctor = confirm("Is there a doctor in the game?");
-    sheriff = confirm("Is there a sheriff in the game?");
+    if(select_doctor.value == "0") {
+        doctor = false;
+    } else {
+        doctor = true;
+    }
+
+    if(select_sheriff.value == "0") {
+        sheriff = false;
+    } else {
+        sheriff = true;
+    }
+
+    numMafia = select_mafia.value;
+
+    startGame();
 }
 
 function startGame() {
     //if admin then assignRoles()
     //else wait 2 seconds and getRole()
+
+    //Hide/Show elements
+    $("#gameLobby").hide();
+    $("#adminPanel").hide();
 
     console.log("Game is starting!");
 
@@ -311,6 +360,9 @@ function getRole() {
 
     clearTimeout(myTimeout);
 
+    //Make sure game lobby is hidden
+    $("#gameLobby").hide();
+
     console.log("Getting your role...");
 
     //Get roles from db
@@ -322,17 +374,26 @@ function getRole() {
         console.log("Doctor: " + doctor);
         console.log("Sheriff: " + sheriff);
 
+        //Update h1 with our role
+        role_h1.innerHTML = role;
+
+        //Show element
+        $("#showRoles").show();
+
         //Start night and since we know it's night we can change lastStatus
         lastStatus = 3;
 
-        //Temporary
-        while(!confirm("Do you want to start night?")) {}
-        startNight();
+        //When player says "ok" after seen role, night starts
     });
 }
 
 function startNight() {
     //night mode on
+
+    //Hide/Show elements
+    $("#gameLobby").hide();
+    $("#showRoles").hide();
+    $("#nightMode").show();
 
     clearTimeout(myTimeout);
 
@@ -341,7 +402,8 @@ function startNight() {
     if(admin) {
         $("#updater").load("updater.php", { action : "startNight" }, function() {
             //Night is on and mafia can wake up in 5 seconds
-            myTimeout = setTimeout(wakeMafia, 5000);
+            setTimeout(function() {audio_sleepCity.play()}, 4000);
+            myTimeout = setTimeout(wakeMafia, 7000);
         });
     } else {
         waitForOrders();
@@ -352,34 +414,40 @@ function wakeMafia() {
 
     clearTimeout(myTimeout);
 
+    //Hide show elements 
+
     console.log("Waking mafia...");
     
     //If admin then update status in db
     if(admin) {
         $("#updater").load("updater.php", { action : "wakeMafia" });
+
+        setTimeout(function() {audio_wakeMafia.play()}, 5000);
     }
 
     //If you are a living mafia
     if(role == "mafia" && alive) {
+  
         
         console.log("You are a living mafia!");
 
         $("#updater").load("updater.php", { action : "getMafiaLeader" }, function() {
             if(userName == mafiaLeader) {
 
+                //Hide show elements
+                $("#nightMode").hide();
+                updateMafiaButtons();
+                $("#mafiaBoss").show();
+
                 console.log("You are the mafia leader!");
                 console.log("Pick who you want to kill.");
 
-                var person = prompt("Who do you want to kill?");
-                $("#updater").load("updater.php", { action : "markKill", who : person }, function() {
-                    
-                    console.log("Marked " + person + " to be killed.");
-
-                    waitForOrders();
-                });
-
             }
             else {
+
+                //Hide show elements
+                $("#nightMode").hide();
+                $("#mafiaScreen").show();
 
                 console.log(mafiaLeader + " is the mafia leader.");
                 console.log("Point at the person you want to kill and " + mafiaLeader + " will pick on their phone.");
@@ -394,7 +462,26 @@ function wakeMafia() {
 
 }
 
+function markKill(person) {
+    $("#updater").load("updater.php", { action : "markKill", who : person }, function() {
+        
+        console.log("Marked " + person + " to be killed.");
+        
+        $("#mafiaBoss").hide();
+        $("#nightMode").show();
+
+        waitForOrders();
+    });
+}
+
 function wakeDoctor() {
+
+    //Ends all mafia stuff
+    $("#mafiaScreen").hide();
+    $("#nightMode").show();
+    if(admin) {
+        audio_sleepMafia.play();
+    }
 
     clearTimeout(myTimeout);
 
@@ -403,20 +490,23 @@ function wakeDoctor() {
     //if there is a doctor in the game
     if(doctor) {
 
+        if(admin) {
+            setTimeout(function() {audio_wakeDoctor.play() }, 6000);
+        }
+
         console.log("There is a doctor in the game.");
 
         //if we are the doctor and alive
         if(role == "doctor" && alive) {
 
+            //Hide show elements
+            updateDoctorButtons();
+            $("#nightMode").hide();
+            $("#doctorNight").show();
+
             console.log("You are the doctor!");
 
-            var person = prompt("Who do you want to heal?");
-            $("#updater").load("updater.php", { action : "markHeal", who : person }, function() {
-
-                console.log("Marked " + person + " to be healed.");
-                    
-                waitForOrders();
-            });
+            //Waiting for button to be pressed by doctor to call markHeal(person)
         }
 
         //If we aren't the doctor
@@ -441,7 +531,26 @@ function wakeDoctor() {
     }
 }
 
+function markHeal(person) {
+
+    //Marking user to be healed
+    $("#updater").load("updater.php", { action : "markHeal", who : person }, function() {
+
+        console.log("Marked " + person + " to be healed.");
+
+        //Hide show elements
+        $("#nightMode").show();
+        $("#doctorNight").hide();
+            
+        waitForOrders();
+    });
+}
+
 function wakeSheriff() {
+
+    if(admin && doctor) {
+        audio_sleepDoctor.play();
+    }
 
     clearTimeout(myTimeout);
 
@@ -449,28 +558,22 @@ function wakeSheriff() {
 
     //If there is a sheriff in the game
     if(sheriff) {
+
+        if(admin) {
+            setTimeout(function() {audio_wakeSheriff.play()}, 6000);
+        }
+
         //if we are the sheriff and alive
         if(role == "sheriff" && alive) {
 
+            //Hide show elements
+            updateSheriffButtons();
+            $("#nightMode").hide();
+            $("#sheriffNight").show();
+
             console.log("You are the sheriff!");
 
-            var person = prompt("Who do you want to check?");
-            $("#updater").load("updater.php", { action : "checkUser", who : person }, function() {
-
-                console.log("Checked " + person);
-
-                //See if good or bad
-                var team;
-                if(checkedUser == "mafia") {
-                    team = "bad";
-                } else {
-                    team = "good";
-                }
-
-                console.log(person + " is " + team);
-                    
-                waitForOrders();
-            });
+            //Sheriff trigger checkPerson() with button
         }
 
             //If we aren't the sheriff
@@ -496,10 +599,46 @@ function wakeSheriff() {
     }
 }
 
+function checkPerson(person) {
+    $("#updater").load("updater.php", { action : "checkUser", who : person }, function() {
+
+        console.log("Checked " + person);
+
+        //See if good or bad
+        var team;
+        if(checkedUser == "mafia") {
+            team = "bad";
+        } else {
+            team = "good";
+        }
+
+        console.log(person + " is " + team);
+
+        team_h1.innerHTML = team;
+        checkedPerson_h1.innerHTML = person;
+
+        $("#sheriffChecked").show();
+
+        $("#sheriffNight").hide();
+            
+        waitForOrders();
+    });
+}
+
 function nightReport() {
     //This happened during the night
 
     //7 seconds later -> startDay()
+
+    if(admin && sheriff) {
+        audio_sleepSheriff.play();
+    }
+
+    if(admin) {
+        setTimeout(function() { audio_wakeCity.play() }, 4000);
+    }
+
+
 
     clearTimeout(myTimeout);
 
@@ -508,8 +647,17 @@ function nightReport() {
     //Get night report
     $("#updater").load("updater.php", { action : "nightReport" }, function () {
 
+        $("#sheriffChecked").hide();
+
         console.log("Night report received!");
         console.log(effectedUser + " was " + nightAction + " during the night.");
+
+        effectedPerson_h1.innerHTML = effectedUser + " was ";
+        nightAction_h1.innerHTML = nightAction;
+
+        //HIDE SHOW elements
+        $("#nightMode").hide();
+        $("#nightReport").show();
 
         //If admin and someone died, then kill them in db
         if(admin && nightAction == "killed") {
@@ -543,6 +691,9 @@ function startDay() {
         //else dead()
 
     console.log("It's a new day!");
+
+    $("#nightReport").hide();
+    $("#gameLobby").show();
 
     //If we died during the night
     if(nightAction == "killed" && userName == effectedUser) {
@@ -583,11 +734,19 @@ function resetMarks(ready) {
 function voteScreen() {
     console.log("Since you are admin, you get to pick someone to kill.");
 
-    var vote = prompt("Who do you want to vote out?");
+    updateFarmersButtons();
+    $("#gameLobby").hide();
+    $("#adminDaymode").show();
 
-    if(vote != "none") {
+    //Waiting for admin to click button to trigger voteOut
+}
+
+function voteOut(vote) {
+    if(vote != "None") {
 
         console.log("You picked " + vote + " to be voted out");
+
+        $("#adminDaymode").hide();
 
         $("#updater").load("updater.php", { action : "kill", who : vote }, function() {
             
@@ -686,6 +845,11 @@ function gameOver() {
     
     console.log("GAME OVER");
     console.log(teamWon + " won!!");
+
+    teamWon_p.innerHTML = teamWon;
+    $("#gameOver").show();
+    $("#gameLobby").hide();
+
 
     if(admin) {
 

@@ -82,7 +82,7 @@ function getUsers() {
     callJS("users = [];");
 
     //Get all users in the game
-    $sql = "SELECT userName FROM users WHERE gameId=?";
+    $sql = "SELECT userName FROM users WHERE gameId=? AND alive=true";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "i", $_SESSION["gameId"]);
     mysqli_stmt_execute($stmt);
@@ -264,6 +264,20 @@ function getAllRoles() {
     saveJSVariable("sheriff", $sheriff, false);
 
     //Close stmt
+    mysqli_stmt_close($stmt);
+
+    //Clear users array
+    callJS("users = [];");
+
+    //Get all users in the game
+    $sql = "SELECT userName FROM users WHERE gameId=? AND alive=true";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION["gameId"]);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $users);
+    for($i = 0; mysqli_stmt_fetch($stmt); $i++) {
+        saveJSVariable("users[".$i."]", $users, true);
+    }
     mysqli_stmt_close($stmt);
 }
 

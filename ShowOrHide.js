@@ -21,6 +21,7 @@ $("#sleepSheriff").hide();
 $("#wakeCity").hide();
 $("#nightReport").hide();
 $("#adminDaymode").hide();
+$("#gameOver").hide();
 
 
 
