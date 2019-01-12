@@ -70,9 +70,6 @@ function createGame() {
 
     //Close mysqli_stmt
     mysqli_stmt_close($stmt);
-
-    //Next step it to waitForOrders()
-    //callJS("waitForOrders();");
 }
 
 function getUsers() {

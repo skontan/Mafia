@@ -36,7 +36,9 @@ var teamWon; //The name of the team that won
 var mafia = []; //Array with the names of the mafias
 var doctorName; //The name of the doctor
 var sheriffName; //The name of the sheriff
+var myTimeout; //A timeout var
 
+//HTML Elements
 const input_name = document.getElementById("nameInput");
 const select_mafia = document.getElementById("selectMafia");
 const select_doctor = document.getElementById("selectDoctor");
@@ -48,6 +50,7 @@ const teamWon_p = document.getElementById("teamWon_p");
 const checkedPerson_h1 = document.getElementById("checkedPerson_h1");
 const team_h1 = document.getElementById("team_h1");
 
+//Audio files
 audio_sleepCity = new Audio("audio/SleepCity.mp3");
 audio_sleepDoctor = new Audio("audio/sleepDoctor.mp3");
 audio_sleepMafia = new Audio("audio/sleepMafia.mp3");
@@ -57,10 +60,9 @@ audio_wakeDoctor = new Audio("audio/wakeDoctor.mp3");
 audio_wakeMafia = new Audio("audio/wakeMafia.mp3");
 audio_wakeSheriff = new Audio("audio/wakeSheriff.mp3");
 
-var myTimeout; //A timeout var
 
 function createGame() {
-    //Temporary way
+    
     userName = input_name.value;
 
     if(userName != "") {
@@ -178,6 +180,9 @@ function waitForOrders() {
 
             //Save lastStatus
             lastStatus = status;
+
+            //Go back and wait for status to become 4
+            myTimeout = setTimeout(waitForOrders, 2000);
         }
 
         //If it's time for mafia to wake up and we didn't know and we aren't admin,
@@ -379,9 +384,6 @@ function getRole() {
 
         //Show element
         $("#showRoles").show();
-
-        //Start night and since we know it's night we can change lastStatus
-        lastStatus = 3;
 
         //When player says "ok" after seen role, night starts
     });
