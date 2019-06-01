@@ -304,11 +304,12 @@ function startGame() {
     }
 }
 
+// shaba
 function assignRoles() {
 
     console.log("Assigning roles...");
 
-    //MARVIN START
+   
     var farmers = users.slice();
     var chosen;
 
@@ -356,7 +357,7 @@ function assignRoles() {
         console.log("Not assigning Sheriff this game.");
         
     }
-    // MARVIN END
+    // raba
 
     var jsonMafia = JSON.stringify(mafia);
 
