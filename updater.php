@@ -65,7 +65,7 @@ function createGame() {
     //Save userId and as admin
     $userId = mysqli_stmt_insert_id($stmt);
     $_SESSION["userId"] = $userId;
-    saveJSVariable("userId", $userId);
+    saveJSVariable("userId", $userId, false);
     saveJSVariable("admin", true, false);
 
     //Close mysqli_stmt
@@ -113,7 +113,7 @@ function joinGame() {
     if($gameId) {
         //Save gameId
         $_SESSION["gameId"] = $gameId;
-        saveJSVariable("gameId", $gameId);
+        saveJSVariable("gameId", $gameId, false);
 
         //Create user in db with gameId
         $sql = "INSERT INTO users(userName, gameId, admin) VALUES(?, ?, false)";
@@ -124,7 +124,7 @@ function joinGame() {
         //Save userId
         $userId = mysqli_stmt_insert_id($stmt);
         $_SESSION["userId"] = $userId;
-        saveJSVariable("userId", $userId);
+        saveJSVariable("userId", $userId, false);
 
         //Close mysqli_stmt
         mysqli_stmt_close($stmt);
@@ -519,6 +519,44 @@ function startDay() {
     mysqli_stmt_close($stmt);
 }
 
+function seenRole() {
+    global $conn;
+
+    //Set seenRole=true on user
+    $sql = "UPDATE users SET seenRole=true WHERE userId=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION["userId"]);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+}
+
+function waitPlayersSeeRole() {
+    global $conn;
+
+    //Mark self as seen
+    seenRole();
+
+    //See if players have seen role
+    $sql = "SELECT userId FROM users WHERE gameId=? AND seenRole=false";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION["gameId"]);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $playersNotSeenRole);
+    mysqli_stmt_fetch($stmt);
+
+    //If players have seen roles
+    if(!$playersNotSeenRole) {
+        saveJSVariable("playersSeenRole", "true", false);
+    }
+    else {
+        saveJSVariable("playersSeenRole", "false", false);
+    }
+
+    //Close stmt
+    mysqli_stmt_close($stmt);
+    
+}
+
 
 //Main
 if($_POST["action"] == "createGame") {
@@ -603,6 +641,14 @@ else if($_POST["action"] == "gameOver") {
 
 else if($_POST["action"] == "startDay") {
     startDay();
+}
+
+else if($_POST["action"] == "seenRole") {
+    seenRole();
+}
+
+else if($_POST["action"] == "waitPlayersSeeRole") {
+    waitPlayersSeeRole();
 }
 
 //Close mysql

@@ -28,6 +28,18 @@
                 }
             });
         };
+
+        function test() {
+            //Posting data to php
+            $.ajax({
+                type: "POST",
+                data: {userId : userId, gameId : gameId},
+                url: "playerleft.php",
+                success: function(msg){
+                    console.log(msg);
+                }
+            });
+        }
     </script>
 
 </body>

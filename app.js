@@ -37,6 +37,7 @@ var mafia = []; //Array with the names of the mafias
 var doctorName; //The name of the doctor
 var sheriffName; //The name of the sheriff
 var myTimeout; //A timeout var
+var playersSeenRole = false; //Variable that determines if all players have seen their role
 
 //HTML Elements
 const input_name = document.getElementById("nameInput");
@@ -49,20 +50,22 @@ const nightAction_h1 = document.getElementById("nightAction_h1");
 const teamWon_p = document.getElementById("teamWon_p");
 const checkedPerson_h1 = document.getElementById("checkedPerson_h1");
 const team_h1 = document.getElementById("team_h1");
+const cityKilled_h1 = document.getElementById("cityKilled_h1");
 
 //Audio files
 audio_sleepCity = new Audio("audio/SleepCity.mp3");
-audio_sleepDoctor = new Audio("audio/sleepDoctor.mp3");
-audio_sleepMafia = new Audio("audio/sleepMafia.mp3");
-audio_sleepSheriff = new Audio("audio/sleepSheriff.mp3");
-audio_wakeCity = new Audio("audio/wakeCity.mp3");
-audio_wakeDoctor = new Audio("audio/wakeDoctor.mp3");
-audio_wakeMafia = new Audio("audio/wakeMafia.mp3");
-audio_wakeSheriff = new Audio("audio/wakeSheriff.mp3");
+audio_sleepDoctor = new Audio("audio/SleepDoctor.mp3");
+audio_sleepMafia = new Audio("audio/SleepMafia.mp3");
+audio_sleepSheriff = new Audio("audio/SleepSheriff.mp3");
+audio_wakeCity = new Audio("audio/WakeCity.mp3");
+audio_wakeDoctor = new Audio("audio/WakeDoctor.mp3");
+audio_wakeMafia = new Audio("audio/WakeMafia.mp3");
+audio_wakeSheriff = new Audio("audio/WakeSheriff.mp3");
 
 
 function createGame() {
     
+    //Get name from the input
     userName = input_name.value;
 
     if(userName != "") {
@@ -177,12 +180,16 @@ function waitForOrders() {
                     startNight();
                 });
             } 
+            //Otherwise just start night
+            else {
+                startNight();
+            }
 
             //Save lastStatus
             lastStatus = status;
 
             //Go back and wait for status to become 4
-            myTimeout = setTimeout(waitForOrders, 2000);
+            //myTimeout = setTimeout(waitForOrders, 2000);
         }
 
         //If it's time for mafia to wake up and we didn't know and we aren't admin,
@@ -275,17 +282,19 @@ function adminPanel() {
 }
 
 function startGame() {
-    //if admin then assignRoles()
-    //else wait 2 seconds and getRole()
+    
 
     //Hide/Show elements
     $("#gameLobby").hide();
     $("#adminPanel").hide();
+    $("#loadScreen").show();
 
     console.log("Game is starting!");
 
     clearTimeout(myTimeout);
 
+    //if admin then assignRoles()
+    //else wait 2 seconds and getRole()
     if(admin) {
         $("#updater").load("updater.php", { action : "startGame" }, function() {
             assignRoles();
@@ -367,6 +376,7 @@ function getRole() {
 
     //Make sure game lobby is hidden
     $("#gameLobby").hide();
+    
 
     console.log("Getting your role...");
 
@@ -382,10 +392,50 @@ function getRole() {
         //Update h1 with our role
         role_h1.innerHTML = role;
 
-        //Show element
+        //Show and hide elements
+        $("#loadScreen").hide();
         $("#showRoles").show();
 
         //When player says "ok" after seen role, night starts
+    });
+}
+
+function seenRole() {
+    $("#showRoles").hide();
+    $("#loadScreen").show();
+
+    console.log("Role seen!");
+
+    if(admin) {
+        waitPlayersSeeRole();
+    }
+    else {
+        $("#updater").load("updater.php", { action : "seenRole" }, function() {
+
+            console.log("Database updated with seenRole=true!");
+
+            //Wait for night to start in waitForOrders()
+            waitForOrders();
+        
+        });
+    }
+}
+
+function waitPlayersSeeRole() {
+
+    console.log("Checking if players have seen role...")
+
+    $("#updater").load("updater.php", { action : "waitPlayersSeeRole" }, function() {
+
+        console.log("PlayersSeenRole = " + playersSeenRole);
+        //Check if players had seen their role
+        if(playersSeenRole) {
+            startNight();
+        }
+        else {
+            myTimeout = setTimeout(waitPlayersSeeRole, 2000);
+        }
+        
     });
 }
 
@@ -395,6 +445,8 @@ function startNight() {
     //Hide/Show elements
     $("#gameLobby").hide();
     $("#showRoles").hide();
+    $("#loadScreen").hide();
+    $("#cityKilled").hide();
     $("#nightMode").show();
 
     clearTimeout(myTimeout);

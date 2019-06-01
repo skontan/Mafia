@@ -22,6 +22,8 @@ $("#wakeCity").hide();
 $("#nightReport").hide();
 $("#adminDaymode").hide();
 $("#gameOver").hide();
+$("#loadScreen").hide();
+$("#cityKilled").hide();
 
 
 

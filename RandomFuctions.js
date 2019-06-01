@@ -41,7 +41,7 @@ startGameButton.addEventListener("click", function() {
 var showRolesOkButton = document.getElementById("buttonOkRoles");
 
 showRolesOkButton.addEventListener("click", function() {
-    startNight();
+    seenRole();
 });
 
 // MafiaBoss on click kill button go to next step
